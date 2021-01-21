@@ -1,5 +1,5 @@
 /*
- * Copyright 2020, Hunter Belanger
+ * Copyright 2021, Hunter Belanger
  *
  * hunter.belanger@gmail.com
  *
@@ -37,29 +37,29 @@
 namespace pmc {
 
 GeoNode::GeoNode(std::shared_ptr<Volume> v, const std::string& name)
-    : name_(name), parent_(nullptr), volume_(v), translation_(), children_() {}
-GeoNode::GeoNode(std::shared_ptr<Volume> v, Vector t, const std::string& name)
+    : name_(name), parent_(nullptr), volume_(v), transform_(), children_() {}
+GeoNode::GeoNode(std::shared_ptr<Volume> v, Transformation t, const std::string& name)
     : name_(name),
       parent_(nullptr),
       volume_(v),
-      translation_(-1 * t),
+      transform_(t.inverse()),
       children_() {}
-GeoNode::GeoNode(GeoNode* p, std::shared_ptr<Volume> v, Vector t,
+GeoNode::GeoNode(GeoNode* p, std::shared_ptr<Volume> v, Transformation t,
                  const std::string& name)
-    : name_(name), parent_(p), volume_(v), translation_(-1 * t), children_() {}
+    : name_(name), parent_(p), volume_(v), transform_(t.inverse()), children_() {}
 
 //============================================================================
 // Methods to add nodes
-GeoNode* GeoNode::add_node(std::shared_ptr<Volume> v, Vector t,
+GeoNode* GeoNode::add_node(std::shared_ptr<Volume> v, Transformation t,
                            std::string name) {
   children_.emplace_back(std::make_unique<GeoNode>(this, v, t, name));
   return children_.back().get();
 }
 
-GeoNode* GeoNode::add_node(std::unique_ptr<GeoNode> node, Vector t) {
+GeoNode* GeoNode::add_node(std::unique_ptr<GeoNode> node, Transformation t) {
   children_.push_back(std::move(node));
   children_.back()->set_parent(this);
-  children_.back()->set_translation(t);
+  children_.back()->set_transformation(t);
   return children_.back().get();
 }
 
@@ -72,8 +72,9 @@ GeoNode* GeoNode::add_node(std::unique_ptr<GeoNode> node) {
 //============================================================================
 // Cloning
 std::unique_ptr<GeoNode> GeoNode::clone() const {
+  // Must inverse transform, as we inverse it again in constructor
   std::unique_ptr<GeoNode> new_this =
-      std::make_unique<GeoNode>(volume_, translation_, name_);
+      std::make_unique<GeoNode>(volume_, transform_.inverse(), name_);
 
   // Add clones of all children
   for (const auto& child : children_) {
@@ -87,7 +88,7 @@ std::unique_ptr<GeoNode> GeoNode::clone() const {
 // Setters
 void GeoNode::set_parent(GeoNode* p) { parent_ = p; }
 
-void GeoNode::set_translation(Vector t) { translation_ = t; }
+void GeoNode::set_transformation(Transformation t) { transform_ = t.inverse(); }
 
 void GeoNode::set_name(const std::string& name) { name_ = name; }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020, Hunter Belanger
+ * Copyright 2021, Hunter Belanger
  *
  * hunter.belanger@gmail.com
  *
@@ -35,6 +35,7 @@
 #define PAPILLON_GEO_NODE_H
 
 #include <Papillon/geometry/csg/volume.hpp>
+#include <Papillon/utils/transformation.hpp>
 #include <deque>
 #include <memory>
 #include <string>
@@ -47,8 +48,8 @@ namespace pmc {
 class GeoNode {
  public:
   GeoNode(std::shared_ptr<Volume> v, const std::string& name);
-  GeoNode(std::shared_ptr<Volume> v, Vector t, const std::string& name);
-  GeoNode(GeoNode* p, std::shared_ptr<Volume> v, Vector t,
+  GeoNode(std::shared_ptr<Volume> v, Transformation t, const std::string& name);
+  GeoNode(GeoNode* p, std::shared_ptr<Volume> v, Transformation t,
           const std::string& name);
 
   GeoNode(const GeoNode&) = delete;
@@ -58,8 +59,8 @@ class GeoNode {
   ~GeoNode() = default;
 
   // add_node
-  GeoNode* add_node(std::shared_ptr<Volume> v, Vector t, std::string name);
-  GeoNode* add_node(std::unique_ptr<GeoNode> node, Vector t);
+  GeoNode* add_node(std::shared_ptr<Volume> v, Transformation t, std::string name);
+  GeoNode* add_node(std::unique_ptr<GeoNode> node, Transformation t);
   GeoNode* add_node(std::unique_ptr<GeoNode> node);
 
   // Cloning
@@ -68,12 +69,12 @@ class GeoNode {
 
   // Setters (shouldn't need to be inlined)
   void set_parent(GeoNode* p);
-  void set_translation(Vector t);
+  void set_transformation(Transformation t);
   void set_name(const std::string& name);
 
   // Getters (should be inlined for speed)
   GeoNode* parent() const { return parent_; }
-  Vector translation() const { return translation_; }
+  Transformation transformation() const { return transform_; }
   std::shared_ptr<Volume> volume() const { return volume_; }
   const std::string& name() const { return name_; }
   size_t nchildren() const { return children_.size(); }
@@ -91,15 +92,16 @@ class GeoNode {
     return nullptr;
   }
 
-  bool is_inside_parent_frame(const Position& r_parent, const Direction& u,
+  bool is_inside_parent_frame(const Position& r_parent, const Direction& u_parent,
                                uint32_t on_surf, Side on_side) const {
-    Position r_local = r_parent + translation_;
-    return volume_->is_inside(r_local, u, on_surf, on_side);
+    Position r_local = transform_ * r_parent;
+    Direction u_local = transform_ * u_parent;
+    return volume_->is_inside(r_local, u_local, on_surf, on_side);
   }
 
-  bool is_inside_local_frame(const Position& r_local, const Direction& u,
+  bool is_inside_local_frame(const Position& r_local, const Direction& u_local,
                               uint32_t on_surf, Side on_side) const {
-    return volume_->is_inside(r_local, u, on_surf, on_side);
+    return volume_->is_inside(r_local, u_local, on_surf, on_side);
   }
 
   SurfaceCrossing distance_to_boundary(const Position& r_local,
@@ -113,14 +115,15 @@ class GeoNode {
       return ray[0].second;
   }
 
-  SurfaceCrossing distance_to_child_boundary(const Position& r_local, const Direction& u) const {
+  SurfaceCrossing distance_to_child_boundary(const Position& r_local, const Direction& u_local) const {
     SurfaceCrossing boundary{INF, 0, Side::Positive};
 
     for (const auto& child : children_) {
-      Vector to_child = child->translation();
-      Position r_child = r_local + to_child;
+      Transformation to_child = child->transformation();
+      Position r_child = to_child * r_local;
+      Direction u_child = to_child * u_local;
       SurfaceCrossing child_boundary =
-          child->distance_to_boundary(r_child, u);
+          child->distance_to_boundary(r_child, u_child);
       if (child_boundary < boundary) boundary = child_boundary;
     }
 
@@ -131,7 +134,7 @@ class GeoNode {
   std::string name_;
   GeoNode* parent_;
   std::shared_ptr<Volume> volume_;
-  Vector translation_;
+  Transformation transform_;
   std::deque<std::unique_ptr<GeoNode>> children_;
 };
 

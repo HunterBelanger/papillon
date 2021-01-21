@@ -81,8 +81,8 @@ int main() {
   volumes[1] = std::make_shared<HalfSpace>(surfaces[1], Side::Negative, 1);
   volumes[2] = std::make_shared<HalfSpace>(surfaces[2], Side::Negative, 1);
 
-  std::unique_ptr<GeoNode> root = std::make_unique<GeoNode>(volumes[2],Vector(), "outer_sphere");
-  root->add_node(volumes[1], Vector(0.,0.,0.), "inner_sphere");
+  std::unique_ptr<GeoNode> root = std::make_unique<GeoNode>(volumes[2], Transformation(), "outer_sphere");
+  root->add_node(volumes[1], Transformation(), "inner_sphere");
 
   Geometry geometry(surfaces, volumes, std::move(root));
 

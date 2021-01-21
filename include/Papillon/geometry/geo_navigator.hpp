@@ -1,5 +1,5 @@
 /*
- * Copyright 2020, Hunter Belanger
+ * Copyright 2021, Hunter Belanger
  *
  * hunter.belanger@gmail.com
  *
@@ -116,9 +116,9 @@ class GeoNavigator {
               current_node_->find_child_node(r_local_, u_local_, on_surface, on_side);
           if (child) {
             current_node_ = child;
-            Vector parent_to_child = child->translation();
-            global_to_local += parent_to_child;
-            r_local_ += parent_to_child;
+            Transformation parent_to_child = child->transformation();
+            global_to_local = parent_to_child * global_to_local;
+            r_local_ = parent_to_child * r_local_;
           } else
             break;
         }
@@ -130,9 +130,9 @@ class GeoNavigator {
           // We must go up a node, and see if we are inside it
           if (current_node_->parent()) {
             current_node_ = current_node_->parent();
-            Vector current_to_previous = current_node_->translation();
-            global_to_local -= current_to_previous;
-            r_local_ -= current_to_previous;
+            Transformation current_to_previous = current_node_->transformation().inverse();
+            global_to_local = current_to_previous * global_to_local;
+            r_local_ = current_to_previous * r_local_;
           } else {
             // There is no parent node, so the particle is forever lost
             lost = true;
