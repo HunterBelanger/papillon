@@ -17,11 +17,6 @@ add_executable(test tests_main.cpp
   intersection_tests.cpp
   union_tests.cpp
   difference_tests.cpp
-  #rect_lattice_tests.cpp
-  #hex_lattice_tests.cpp
-  #universe_tests.cpp
-  #cell_tests.cpp
-  #geo_navigator_tests.cpp
 )
 target_compile_features(test PRIVATE cxx_std_17)
 target_link_libraries(test Papillon gtest)
