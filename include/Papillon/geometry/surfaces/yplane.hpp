@@ -44,7 +44,7 @@ namespace pmc {
       ~YPlane() = default;
 
       Side sign(const Position& r, const Direction& u) const override final;
-      double distance(const Position& r, const Direction& u) const override final;
+      double distance(const Position& r, const Direction& u, uint32_t on_surf) const override final;
       Direction normal(const Position& r) const override final;
       Ray get_ray(const Position& r, const Direction& u, Side side) const override final;
       void translate(const Vector& v) override final;

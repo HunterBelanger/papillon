@@ -52,9 +52,9 @@ namespace pmc {
     }
   }
 
-  double XCylinder::distance(const Position& r, const Direction& u) const {
+  double XCylinder::distance(const Position& r, const Direction& u, uint32_t on_surf) const {
     double a = u.y()*u.y() + u.z()*u.z();
-    if(a == 0.) return INF;
+    if(a == 0. || on_surf == id_) return INF;
 
     double y = r.y() - y0;
     double z = r.z() - z0;

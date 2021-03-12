@@ -50,10 +50,10 @@ namespace pmc {
     }
   }
 
-  double Plane::distance(const Position& r, const Direction& u) const {
+  double Plane::distance(const Position& r, const Direction& u, uint32_t on_surf) const {
     double num = D - A*r.x() - B*r.y() - C*r.z();
     double denom = A*u.x() + B*u.y() + C*u.z();
-    if(std::abs(num/denom) < SURFACE_COINCIDENT || denom == 0.) return INF;
+    if(std::abs(num/denom) < SURFACE_COINCIDENT || denom == 0. || on_surf == id_) return INF;
     else if(num/denom < 0.) return INF;
     else return num/denom;
   }
@@ -67,7 +67,7 @@ namespace pmc {
 
     if(r_side == side) {
       // Position is in region, interval is (0,d)
-      double dist = distance(r,u);
+      double dist = distance(r,u, 0);
       if(dist == INF) return {{0.,0,P},{dist,0,P}};
       else if(r_side == Side::Positive) return {{0.,0,P},{dist,id_,P}};
       return {{0.,0,P},{dist,id_,N}};
@@ -77,8 +77,8 @@ namespace pmc {
       if(A*u.x() + B*u.y() + C*u.z() == 0.
          || std::fabs(diff) < SURFACE_COINCIDENT) return {{}};
       else {
-        if(r_side == Side::Positive) return {{distance(r,u),id_,P}, {INF,0,N}};
-        return {{distance(r,u),id_,N}, {INF,0,P}};
+        if(r_side == Side::Positive) return {{distance(r,u,0),id_,P}, {INF,0,N}};
+        return {{distance(r,u, 0),id_,N}, {INF,0,P}};
       }
     }
   }

@@ -53,7 +53,7 @@ namespace pmc {
     }
   }
 
-  double Sphere::distance(const Position& r, const Direction& u) const {
+  double Sphere::distance(const Position& r, const Direction& u, uint32_t on_surf) const {
     double x = r.x() - x0;
     double y = r.y() - y0;
     double z = r.y() - z0;
@@ -61,7 +61,7 @@ namespace pmc {
     double c = x*x + y*y + z*z - R*R;
     double quad = k*k - c;
 
-    if(quad < 0.) {
+    if(quad < 0. || on_surf == id_) {
       return INF;
     } else if(std::abs(c) < SURFACE_COINCIDENT) {
       // On surface

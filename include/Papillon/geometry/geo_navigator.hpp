@@ -188,7 +188,7 @@ class GeoNavigator {
     std::shared_ptr<Surface> surface = nullptr;
     if (surf_id != 0 && geometry->surfaces.find(surf_id) == geometry->surfaces.end()) {
       // Cann't find surface
-      std::string mssg = "cannot find surface with id " + std::to_string(surf_id) + ".";
+      std::string mssg = "Cannot find surface with id " + std::to_string(surf_id) + ".";
       throw PMCException(mssg, __FILE__, __LINE__);
     } else if (surf_id != 0) {
       surface = geometry->surfaces[surf_id];
@@ -199,11 +199,11 @@ class GeoNavigator {
     return next_boundary_;
   }
 
+  // TODO Boundary find_next_surface() const {}
+
   Boundary next_boundary() const {
     return next_boundary_;
   }
-
-  // TODO Boundary get_next_material_boundary() const {}
 
   void reflect_with_next_boundary() {
     // Only try to reflect if there is a true boundary (i.e. a surface),

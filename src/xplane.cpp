@@ -49,9 +49,9 @@ namespace pmc {
     }
   }
 
-  double XPlane::distance(const Position& r, const Direction& u) const {
+  double XPlane::distance(const Position& r, const Direction& u, uint32_t on_surf) const {
     double diff = x0 - r.x();
-    if(std::fabs(diff) < SURFACE_COINCIDENT || u.x() == 0.) return INF;
+    if(std::fabs(diff) < SURFACE_COINCIDENT || u.x() == 0. || on_surf == id_) return INF;
     else if(diff / u.x() < 0.) return INF;
     else return diff/u.x();
   }
@@ -71,7 +71,7 @@ namespace pmc {
       d_min = 0.;
 
       // If inside, use distance function to get upper bound
-      d_max = distance(r, u);
+      d_max = distance(r, u, 0);
       if(d_max == INF) return {{d_min,0,P}, {d_max,0,P}};
       else if(r_side == Side::Positive) return {{d_min,0,P}, {d_max,id_,P}};
       return {{d_min,0,P}, {d_max,id_,N}};

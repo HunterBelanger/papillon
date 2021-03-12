@@ -53,7 +53,7 @@ class Surface {
   virtual ~Surface() = default;
 
   virtual Side sign(const Position& r, const Direction& u) const = 0;
-  virtual double distance(const Position& r, const Direction& u) const = 0;
+  virtual double distance(const Position& r, const Direction& u, uint32_t on_surf) const = 0;
   virtual Direction normal(const Position& r) const = 0;
   virtual Ray get_ray(const Position& r, const Direction& u, Side side) const = 0;
   virtual void translate(const Vector& v) = 0;

@@ -1,12 +1,12 @@
 /*
- * Copyright 2020, Hunter Belanger
+ * Copyright 2021, Hunter Belanger
  *
  * hunter.belanger@gmail.com
  *
  * Ce logiciel est régi par la licence CeCILL soumise au droit français et
  * respectant les principes de diffusion des logiciels libres. Vous pouvez
  * utiliser, modifier et/ou redistribuer ce programme sous les conditions
- * de la licence CeCILL telle que diffusée par le CEA, le CNRS et l'INRIA 
+ * de la licence CeCILL telle que diffusée par le CEA, le CNRS et l'INRIA
  * sur le site "http://www.cecill.info".
  *
  * En contrepartie de l'accessibilité au code source et des droits de copie,
@@ -17,49 +17,67 @@
  *
  * A cet égard  l'attention de l'utilisateur est attirée sur les risques
  * associés au chargement,  à l'utilisation,  à la modification et/ou au
- * développement et à la reproduction du logiciel par l'utilisateur étant 
- * donné sa spécificité de logiciel libre, qui peut le rendre complexe à 
+ * développement et à la reproduction du logiciel par l'utilisateur étant
+ * donné sa spécificité de logiciel libre, qui peut le rendre complexe à
  * manipuler et qui le réserve donc à des développeurs et des professionnels
  * avertis possédant  des  connaissances  informatiques approfondies.  Les
  * utilisateurs sont donc invités à charger  et  tester  l'adéquation  du
  * logiciel à leurs besoins dans des conditions permettant d'assurer la
- * sécurité de leurs systèmes et ou de leurs données et, plus généralement, 
- * à l'utiliser et l'exploiter dans les mêmes conditions de sécurité. 
+ * sécurité de leurs systèmes et ou de leurs données et, plus généralement,
+ * à l'utiliser et l'exploiter dans les mêmes conditions de sécurité.
  *
- * Le fait que vous puissiez accéder à cet en-tête signifie que vous avez 
+ * Le fait que vous puissiez accéder à cet en-tête signifie que vous avez
  * pris connaissance de la licence CeCILL, et que vous en avez accepté les
  * termes.
  *
  * */
-#ifndef PAPILLON_PMCEXCEPTION_H
-#define PAPILLON_PMCEXCEPTION_H
+#ifndef PAPILLON_PMC_EXCEPTION_H
+#define PAPILLON_PMC_EXCEPTION_H
 
-#include <exception>
 #include <string>
+#include <exception>
 
 namespace pmc {
 
   class PMCException : public std::exception {
     public:
-      PMCException(const std::string& mssg, const std::string& file, int line): std::exception(), mssg_(mssg), file_(file), line_(line), out_() {
-        out_ = mssg_ + " " + file_ + ":" + std::to_string(line_);
+      PMCException(): message("\n") {}
+      PMCException(const std::string& mssg, const std::string& file, int line): message("\n") {
+        add_to_error_message(mssg, file, line); 
+      }
+      ~PMCException() = default;
+
+      void add_to_exception(const std::string& mssg, const std::string& file, int line) {
+        add_to_error_message(mssg, file, line);
       }
 
-      const std::string& message() const {return mssg_;}
-      const std::string& file() const {return file_;}
-      int line() const {return line_;}
-
-      const char* what() const noexcept override final {
-        return out_.c_str(); 
+      const char* what() const noexcept override {
+        return message.c_str();
       }
 
-    private: 
-      std::string mssg_;
-      std::string file_;
-      int         line_;
-      std::string out_;
+    private:
+      std::string message;
+
+      void add_to_error_message(const std::string& mssg, const std::string& file, int line) {
+        std::string tmp = "\n";
+        tmp += " #--------------------------------------------------------------------------------\n";
+        tmp += " # Location: " + file + ":" + std::to_string(line) + "\n";
+        tmp += " # \n";
+        tmp += " # Message: ";
+        
+        for(const auto& c : mssg) {
+          if(c == '\n') {
+            tmp += "\n #          ";
+          } else {
+            tmp += c;
+          }
+        }
+        tmp += "\n"; 
+        tmp += " #--------------------------------------------------------------------------------";
+
+        message = tmp + message;
+      }
   };
-
 }
 
 #endif
