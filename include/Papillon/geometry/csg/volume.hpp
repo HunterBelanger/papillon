@@ -35,18 +35,24 @@
 #define PAPILLON_VOLUME_H
 
 #include <Papillon/utils/direction.hpp>
-#include <Papillon/geometry/ray.hpp>
 #include <Papillon/geometry/surfaces/surface.hpp>
 
 namespace pmc {
+
+  struct Boundary {
+    double distance;
+    uint32_t surface_id;
+    Surface::Side current_side;
+    Surface::BoundaryType boundary_type;
+  };
 
   class Volume {
     public:
       Volume(uint32_t i_id): id_(i_id) {}
       virtual ~Volume() = default;
 
-      virtual bool is_inside(const Position& r, const Direction& u, uint32_t on_surf=0, Side on_side=Side::Positive) const = 0;
-      virtual Ray get_ray(const Position& r, const Direction& u) const = 0;
+      virtual bool is_inside(const Position& r, const Direction& u, uint32_t on_surf=0, Surface::Side on_side=Surface::Side::Positive) const = 0;
+      virtual Boundary get_boundary(const Position& r, const Direction& u, uint32_t on_surf=0) const = 0;
 
       uint32_t id() const {return id_;}
 

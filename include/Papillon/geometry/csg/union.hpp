@@ -45,8 +45,8 @@ namespace pmc {
       Union(std::shared_ptr<Volume> r1, std::shared_ptr<Volume> r2, uint32_t id);
       ~Union() = default;
 
-      bool is_inside(const Position& r, const Direction& u, uint32_t on_surf=0, Side on_side=Side::Positive) const override final;
-      Ray get_ray(const Position& r, const Direction& u) const override final;
+      bool is_inside(const Position& r, const Direction& u, uint32_t on_surf=0, Surface::Side on_side=Surface::Side::Positive) const override final;
+      Boundary get_boundary(const Position& r, const Direction& u, uint32_t on_surf=0) const override final;
 
     private:
       std::shared_ptr<Volume> r1_;

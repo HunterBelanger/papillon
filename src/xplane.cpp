@@ -40,7 +40,7 @@ namespace pmc {
 
   XPlane::XPlane(double x, BoundaryType bound, uint32_t i_id): Surface(bound,i_id), x0(x) {}
 
-  Side XPlane::sign(const Position& r, const Direction& u) const {
+  Surface::Side XPlane::sign(const Position& r, const Direction& u) const {
     if(r.x() - x0 > SURFACE_COINCIDENT) return Side::Positive;
     else if(r.x() - x0 < -SURFACE_COINCIDENT) return Side::Negative;
     else {
@@ -57,51 +57,4 @@ namespace pmc {
   }
 
   Direction XPlane::normal(const Position& /*r*/) const {return {1., 0., 0.};}
-
-  Ray XPlane::get_ray(const Position& r, const Direction& u, Side side) const {
-    // Get sign of position, this determines lower bound on interval
-    Side r_side = sign(r, u);
-    
-    double d_min, d_max;
-    Side P = Side::Positive;
-    Side N = Side::Negative;
-
-    if(r_side == side) {
-      // If r is in the region, the segment begins at r, where d=0
-      d_min = 0.;
-
-      // If inside, use distance function to get upper bound
-      d_max = distance(r, u, 0);
-      if(d_max == INF) return {{d_min,0,P}, {d_max,0,P}};
-      else if(r_side == Side::Positive) return {{d_min,0,P}, {d_max,id_,P}};
-      return {{d_min,0,P}, {d_max,id_,N}};
-    } else {
-      // r is not inside region, so we need to get two intersections
-      // one where ray enters region, and one where exits (if applicable)
-      double diff = x0 - r.x();
-      if(diff / u.x() < 0. || u.x() == 0. 
-        || (std::fabs(diff) < SURFACE_COINCIDENT && r_side != side)) {
-        // Ray will never enter region, return empty ray
-        return {{}};
-      } else {
-        // Get where ray will enter
-        d_min = diff/u.x();
-
-        // Get where ray will exit. For plane, it is only INF
-        d_max = INF;
-
-        if(r_side == Side::Positive) return {{d_min,id_,P}, {d_max,0,P}};
-        return {{d_min,id_,N}, {d_max,0,P}};
-      }
-    }
-  }
-
-  void XPlane::translate(const Vector& v) {
-    x0 += v.x();
-  }
-
-  std::shared_ptr<Surface> XPlane::clone() const {
-    return std::make_shared<XPlane>(x0, boundary_, id_); 
-  }
-
 }

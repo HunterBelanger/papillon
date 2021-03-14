@@ -41,7 +41,7 @@ namespace pmc {
   ZCylinder::ZCylinder(double x_, double y_, double r_, BoundaryType bound,
     uint32_t i_id): Surface(bound,i_id), x0(x_), y0(y_), R(r_) {}
 
-  Side ZCylinder::sign(const Position& r, const Direction& u) const {
+  Surface::Side ZCylinder::sign(const Position& r, const Direction& u) const {
     double x = r.x() - x0;
     double y = r.y() - y0;
     double eval = y*y + x*x - R*R;
@@ -80,81 +80,5 @@ namespace pmc {
     double x = r.x() - x0;
     double y = r.y() - y0;
     return {x,y,0.};
-  }
-
-  Ray ZCylinder::get_ray(const Position& r, const Direction& u,
-      Side side) const {
-    double a = u.y()*u.y() + u.x()*u.x();
-    double x = r.x() - x0;
-    double y = r.y() - y0;
-    double k = y*u.y() + x*u.x();
-    double c = y*y + x*x - R*R;
-    double quad = k*k - a*c;
-    Side P = Side::Positive;
-    Side N = Side::Negative;
-    
-    if(side == Side::Negative) {
-      // Region is the inside of cylinder
-      if(c < -SURFACE_COINCIDENT) {
-        // Position is inside cylinder, which is also inside region.
-        // Low bound must be 0, and upper is intersection or inf
-        if(a == 0.) return {{0.,0,P}, {INF,0,P}};
-        else return {{0.,0,P}, {(-k + std::sqrt(quad))/a,id_,N}};
-
-      } else if(c > SURFACE_COINCIDENT) {
-        // Position is outside cylinder, outside region.
-        // Could have one region (two intersections),
-        // or could have none.
-        if(a == 0. || quad < 0.) {
-          // No intersections
-          return {{}};
-        } else {
-          // Two intersections, both are positive or both are negative
-          if((-k - std::sqrt(quad))/a < 0.) return {{}};
-          else return {{(-k - std::sqrt(quad))/a,id_,P}, {(-k + std::sqrt(quad))/a,id_,N}};
-        }
-      } else {
-        // On surface 
-        if(a == 0.) return {{0.,0,P}, {INF,0,P}};
-        else if(k > 0.) return {{}};
-        else return {{0.,0,P}, {-2.*k/a,id_,N}};
-      }
-    } else {
-      // Region is outside cylinder
-      if(c > SURFACE_COINCIDENT) {
-        // Position is outsde cylinder in region.
-        // Lower bound is 0. Upper boud is Inf, or intersection.
-        // If intersection, there is a second region for passing through
-        // the cylinder.
-        if(a == 0. || quad < 0.) return {{0.,0,P}, {INF,0,P}};
-        else {
-          if((-k + std::sqrt(quad))/a < 0.) return {{0.,0,P}, {INF,0,P}};
-          else {
-            // Two regions must be determined, (0,d1), (d2,INF)
-            return {{{{0.,0,P},{(-k-std::sqrt(quad))/a,id_,P}},
-              {{(-k+std::sqrt(quad))/a,id_,N},{INF,0,P}}}};
-          }
-        }
-      } else if(c < -SURFACE_COINCIDENT) {
-        // Position is inside cylinder, outside region.
-        // Could have one segment, or none.
-        if(a == 0.) return {{}};
-        else return {{(-k + std::sqrt(quad))/a,id_,N}, {INF,0,P}};
-      } else {
-        // On surface
-        if(a == 0.) return {{}};
-        else if(k > 0.) return {{0.,0,P}, {INF,0,P}};
-        else return {{-2.*k/a,id_,N}, {INF,0,P}};
-      }
-    }
-  }
-
-  void ZCylinder::translate(const Vector& v) {
-    x0 += v.x();
-    y0 += v.y();
-  }
-
-  std::shared_ptr<Surface> ZCylinder::clone() const {
-    return std::make_shared<ZCylinder>(x0, y0, R, boundary_, id_); 
   }
 }

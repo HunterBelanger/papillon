@@ -40,7 +40,7 @@ namespace pmc {
   
   ZPlane::ZPlane(double z, BoundaryType bound, uint32_t i_id): Surface(bound,i_id), z0(z) {}
 
-  Side ZPlane::sign(const Position& r, const Direction& u) const {
+  Surface::Side ZPlane::sign(const Position& r, const Direction& u) const {
     if(r.z() - z0 > SURFACE_COINCIDENT) return Side::Positive;
     else if(r.z() - z0 < -SURFACE_COINCIDENT) return Side::Negative;
     else {
@@ -57,50 +57,4 @@ namespace pmc {
   }
 
   Direction ZPlane::normal(const Position& /*r*/) const {return {0., 0., 1.};}
-  
-  Ray ZPlane::get_ray(const Position& r, const Direction& u, Side side) const {
-    // Get sign of position, this determines lower bound on interval
-    Side r_side = sign(r,u);
-    
-    double d_min, d_max;
-    Side P = Side::Positive;
-    Side N = Side::Negative;
-
-    if(r_side == side) {
-      // If r is in the region, the segment begins at r, where d=0
-      d_min = 0.;
-
-      // If inside, use distance function to get upper bound
-      d_max = distance(r, u, 0);
-      if(d_max == INF) return {{d_min,0,P},{d_max,0,P}};
-      else if(r_side == Side::Positive) return {{d_min,0,P}, {d_max,id_,P}};
-      return {{d_min,0,P}, {d_max,id_,N}};
-    } else {
-      // r is not inside region, so we need to get two intersections
-      // one where ray enters region, and one where exits (if applicable)
-      double diff = z0 - r.z();
-      if(diff / u.z() < 0. || u.z() == 0.
-         || (std::fabs(diff) < SURFACE_COINCIDENT && r_side != side))  {
-        // Ray will never enter region, return empty ray
-        return {{}};
-      } else {
-        // Get where ray will enter
-        d_min = diff/u.z();
-
-        // Get where ray will exit. For plane, it is only INF
-        d_max = INF;
-
-        if(r_side == Side::Positive) return {{d_min,id_,P}, {d_max,0,P}};
-        return {{d_min,id_,N}, {d_max,0,P}};
-      }
-    }
-  }
-
-  void ZPlane::translate(const Vector& v) {
-    z0 += v.z();
-  }
-
-  std::shared_ptr<Surface> ZPlane::clone() const {
-    return std::make_shared<ZPlane>(z0, boundary_, id_); 
-  }
 }

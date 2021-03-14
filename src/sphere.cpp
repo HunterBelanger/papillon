@@ -40,7 +40,7 @@ namespace pmc {
   
   Sphere::Sphere(double x_, double y_, double z_, double r_, BoundaryType bound, uint32_t i_id): Surface(bound,i_id), x0(x_), y0(y_), z0(z_), R(r_) {}
 
-  Side Sphere::sign(const Position& r, const Direction& u) const {
+  Surface::Side Sphere::sign(const Position& r, const Direction& u) const {
     double x = r.x() - x0;
     double y = r.y() - y0;
     double z = r.z() - z0;
@@ -81,69 +81,5 @@ namespace pmc {
     double y = r.y() - y0;
     double z = r.z() - z0;
     return {x,y,z};
-  }
-
-  Ray Sphere::get_ray(const Position& r, const Direction& u, 
-      Side side) const {
-    double x = r.x() - x0;
-    double y = r.y() - y0;
-    double z = r.y() - z0;
-    double k = x*u.x() + y*u.y() + z*u.z();
-    double c = x*x + y*y + z*z - R*R;
-    double quad = k*k - c;
-    Side P = Side::Positive;
-    Side N = Side::Negative;
-    
-    if(side == Side::Negative) {
-      // Region is inside sphere
-      if(c < -SURFACE_COINCIDENT) {
-        // Position is inside region and sphere. One segment, (0,d)
-        return {{0.,0,P}, {-k + std::sqrt(quad),id_,N}};
-      } else if (c > SURFACE_COINCIDENT) {
-        // Position outside sphere and region.
-        // Could have no segments, or 1 segment
-        if(quad < 0. || (-k + std::sqrt(quad))< 0.) return {{}};
-        else return {{-k - std::sqrt(quad),id_,P}, {-k + std::sqrt(quad),id_,N}};
-      } else {
-        // Position is on surface of sphere 
-        // if k > 0, we are pointing outwards, so no intersection
-        if(k > 0.) return {{}};
-        else {
-        // k < 0., so we are pointing inwards, c = 0 remeber, so the intersection is then
-        // going to be larger solution
-        return {{0.,0,P}, {-2.*k,id_,N}};
-        }
-      }
-    } else {
-      // Region is outside sphere
-      if(c < -SURFACE_COINCIDENT){
-        // Position is inside
-        return {{-k + std::sqrt(quad),id_,N}, {INF,0,P}};
-      } else if(c > SURFACE_COINCIDENT) {
-        // Could have (0,INF) or (0,b1)(b2,INF)
-        if(quad < 0. || (-k + std::sqrt(quad))< 0.) {
-          return {{0.,0,P}, {INF,0,P}};
-        } else {
-          // Two segments
-         return {{{{0.,0,P},{-k - std::sqrt(quad),id_,P}}, {{-k + std::sqrt(quad),id_,N},{INF,0,P}}}};
-        }
-      } else {
-        // r is on surface
-        if(k > 0.) return {{0.,0,P}, {INF,0,P}};
-        else {
-          return {{-2.*k,id_,N} ,{INF,0,P}};  
-        }
-      }
-    }
-  }
-
-  void Sphere::translate(const Vector& v) {
-    x0 += v.x();
-    y0 += v.y();
-    z0 += v.z();
-  }
-
-  std::shared_ptr<Surface> Sphere::clone() const {
-    return std::make_shared<Sphere>(x0, y0, z0, R, boundary_, id_); 
   }
 }

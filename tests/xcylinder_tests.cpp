@@ -18,10 +18,10 @@ namespace {
     Direction u1(0.0, 1.0, 1.0);
     Direction u2(1.0, 0.0, -1.0);
 
-    EXPECT_EQ(xc.sign(r1, u1), Side::Negative);
-    EXPECT_EQ(xc.sign(r2, u1), Side::Positive);
-    EXPECT_EQ(xc.sign(r3, u1), Side::Positive);
-    EXPECT_EQ(xc.sign(r3, u2), Side::Negative);
+    EXPECT_EQ(xc.sign(r1, u1), Surface::Side::Negative);
+    EXPECT_EQ(xc.sign(r2, u1), Surface::Side::Positive);
+    EXPECT_EQ(xc.sign(r3, u1), Surface::Side::Positive);
+    EXPECT_EQ(xc.sign(r3, u2), Surface::Side::Negative);
   }
 
   TEST(XCylinder, distance) {
@@ -50,53 +50,5 @@ namespace {
     EXPECT_DOUBLE_EQ(-1.0, xc.normal(r2).z());
     EXPECT_DOUBLE_EQ(-1.0, xc.normal(r3).y());
   }
-
-  TEST(XCylinder, get_ray) {
-    Ray r1 = xc.get_ray({-1., 0., 2.},{0.,1.,0.}, Side::Negative);
-    EXPECT_EQ(r1.size(), 1);
-    EXPECT_DOUBLE_EQ(r1[0].first.distance, 1.);
-    EXPECT_EQ(r1[0].first.surface, 1);
-    EXPECT_EQ(r1[0].first.side, Side::Positive);
-    EXPECT_DOUBLE_EQ(r1[0].second.distance, 5.);
-    EXPECT_EQ(r1[0].second.surface, 1);
-    EXPECT_EQ(r1[0].second.side, Side::Negative);
-
-    Ray r2 = xc.get_ray({-1., 0., 2.},{0.,1.,0.}, Side::Positive);
-    EXPECT_EQ(r2.size(), 2);
-    EXPECT_DOUBLE_EQ(r2[0].first.distance, 0.);
-    EXPECT_EQ(r2[0].first.surface, 0);
-    EXPECT_EQ(r2[0].first.side, Side::Positive);
-    EXPECT_DOUBLE_EQ(r2[0].second.distance, 1.);
-    EXPECT_EQ(r2[0].second.surface, 1);
-    EXPECT_EQ(r2[0].second.side, Side::Positive);
-    EXPECT_DOUBLE_EQ(r2[1].first.distance, 5.);
-    EXPECT_EQ(r2[1].first.surface, 1);
-    EXPECT_EQ(r2[1].first.side, Side::Negative);
-    EXPECT_DOUBLE_EQ(r2[1].second.distance, INF);
-    EXPECT_EQ(r2[1].second.surface, 0);
-    EXPECT_EQ(r2[1].second.side, Side::Positive);
-    
-    // Traveling allong cylinder. We assume on is inside in
-    // this case, so should get (0, INF)
-    Ray r3 = xc.get_ray({-1.,1.,2.}, {1.,0.,0.}, Side::Negative);
-    EXPECT_EQ(r3.size(), 1);
-    EXPECT_DOUBLE_EQ(r3[0].first.distance, 0.);
-    EXPECT_EQ(r3[0].first.surface, 0);
-    EXPECT_EQ(r3[0].first.side, Side::Positive);
-    EXPECT_DOUBLE_EQ(r3[0].second.distance, INF);
-    EXPECT_EQ(r3[0].second.surface, 0);
-    EXPECT_EQ(r3[0].second.side, Side::Positive);
-
-    Ray r4 = xc.get_ray({0.,3.,2.},{-1.,0.,0.}, Side::Negative);
-    EXPECT_EQ(r4.size(), 1);
-    EXPECT_DOUBLE_EQ(r4[0].first.distance, 0.);
-    EXPECT_EQ(r4[0].first.surface, 0);
-    EXPECT_EQ(r4[0].first.side, Side::Positive);
-    EXPECT_DOUBLE_EQ(r4[0].second.distance, INF);
-    EXPECT_EQ(r4[0].second.surface, 0);
-    EXPECT_EQ(r4[0].second.side, Side::Positive);
-
-    Ray r5 = xc.get_ray({0.,3.,2.}, {1.,0.,0.}, Side::Positive);
-    EXPECT_EQ(r5.size(), 0);
-  }
+  
 }; 

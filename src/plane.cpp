@@ -40,7 +40,7 @@ namespace pmc {
   
   Plane::Plane(double A_, double B_, double C_, double D_, BoundaryType bound, uint32_t i_id): Surface(bound,i_id), A(A_), B(B_), C(C_), D(D_) {}
 
-  Side Plane::sign(const Position& r, const Direction& u) const {
+  Surface::Side Plane::sign(const Position& r, const Direction& u) const {
     double eval = A*r.x() + B*r.y() + C*r.z() - D;
     if(eval > SURFACE_COINCIDENT) return Side::Positive;
     else if(eval < -SURFACE_COINCIDENT) return Side::Negative;
@@ -59,37 +59,4 @@ namespace pmc {
   }
 
   Direction Plane::normal(const Position& /*r*/) const {return {A, B, C};}
-
-  Ray Plane::get_ray(const Position& r, const Direction& u, Side side) const {
-    Side r_side = sign(r,u);
-    Side P = Side::Positive;
-    Side N = Side::Negative;
-
-    if(r_side == side) {
-      // Position is in region, interval is (0,d)
-      double dist = distance(r,u, 0);
-      if(dist == INF) return {{0.,0,P},{dist,0,P}};
-      else if(r_side == Side::Positive) return {{0.,0,P},{dist,id_,P}};
-      return {{0.,0,P},{dist,id_,N}};
-    } else {
-      double diff = D - A*r.x() - B*r.y() - C*r.z();
-      // Position is not in region, either never intersects, or (d,INF)
-      if(A*u.x() + B*u.y() + C*u.z() == 0.
-         || std::fabs(diff) < SURFACE_COINCIDENT) return {{}};
-      else {
-        if(r_side == Side::Positive) return {{distance(r,u,0),id_,P}, {INF,0,N}};
-        return {{distance(r,u, 0),id_,N}, {INF,0,P}};
-      }
-    }
-  }
-
-  void Plane::translate(const Vector& v) {
-    D += A*v.x();
-    D += B*v.y();
-    D += C*v.z(); 
-  }
-
-  std::shared_ptr<Surface> Plane::clone() const {
-    return std::make_shared<Plane>(A, B, C, D, boundary_, id_); 
-  }
 }

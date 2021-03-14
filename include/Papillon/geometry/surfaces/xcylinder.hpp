@@ -44,11 +44,8 @@ namespace pmc {
       ~XCylinder() = default;
 
       Side sign(const Position& r, const Direction& u) const override final;
-      double distance(const Position& r, const Direction& u, uint32_t on_surf) const override final;
+      double distance(const Position& r, const Direction& u, uint32_t on_surf=0) const override final;
       Direction normal(const Position& r) const override final;
-      Ray get_ray(const Position& r, const Direction& u, Side side) const override final;
-      void translate(const Vector& v) override final;
-      std::shared_ptr<Surface> clone() const override final;
 
     private:
       double y0, z0, R;

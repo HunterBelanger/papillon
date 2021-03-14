@@ -14,10 +14,10 @@ namespace {
     Direction u1(0.1, 0.1, 0.1);
     Direction u2(0.1, 0.1, -0.1);
 
-    EXPECT_EQ(tplane.sign(r1,u1), Side::Negative);
-    EXPECT_EQ(tplane.sign(r2, u1), Side::Positive);
-    EXPECT_EQ(tplane.sign(r3,u2), Side::Negative);
-    EXPECT_EQ(tplane.sign(r3,u1), Side::Positive);
+    EXPECT_EQ(tplane.sign(r1,u1), Surface::Side::Negative);
+    EXPECT_EQ(tplane.sign(r2, u1), Surface::Side::Positive);
+    EXPECT_EQ(tplane.sign(r3,u2), Surface::Side::Negative);
+    EXPECT_EQ(tplane.sign(r3,u1), Surface::Side::Positive);
   }
 
   TEST(ZPlane, distance) {
@@ -45,45 +45,5 @@ namespace {
     EXPECT_DOUBLE_EQ(0.0, zpn.y());
     EXPECT_DOUBLE_EQ(1.0, zpn.z());
   }
-
-  TEST(ZPlane, get_ray) {
-    Ray r1 = tplane.get_ray({2.0,0.,2.},{0.,0.,1.}, Side::Positive);
-    EXPECT_EQ(r1.size(), 1);
-    EXPECT_DOUBLE_EQ(r1[0].first.distance, 1.);
-    EXPECT_EQ(r1[0].first.surface, 1);
-    EXPECT_EQ(r1[0].first.side, Side::Negative);
-    EXPECT_DOUBLE_EQ(r1[0].second.distance, INF);
-    EXPECT_EQ(r1[0].second.surface, 0);
-    EXPECT_EQ(r1[0].second.side, Side::Positive);
-
-    Ray r2 = tplane.get_ray({2.0,0.,2.},{0.,0.,1.}, Side::Negative);
-    EXPECT_EQ(r2.size(), 1);
-    EXPECT_DOUBLE_EQ(r2[0].first.distance, 0.);
-    EXPECT_EQ(r2[0].first.surface, 0);
-    EXPECT_EQ(r2[0].first.side, Side::Positive);
-    EXPECT_DOUBLE_EQ(r2[0].second.distance, 1.);
-    EXPECT_EQ(r2[0].second.surface, 1);
-    EXPECT_EQ(r2[0].second.side, Side::Negative);
-
-    Ray r3 = tplane.get_ray({2.0,0.,2.},{0.,1.,0.}, Side::Positive);
-    EXPECT_EQ(r3.size(), 0);
-
-    Ray r4 = tplane.get_ray({2.0,0.,4.},{0.,0.,-1.}, Side::Positive);
-    EXPECT_EQ(r4.size(), 1);
-    EXPECT_DOUBLE_EQ(r4[0].first.distance, 0.);
-    EXPECT_EQ(r4[0].first.surface, 0);
-    EXPECT_EQ(r4[0].first.side, Side::Positive);
-    EXPECT_DOUBLE_EQ(r4[0].second.distance, 1.);
-    EXPECT_EQ(r4[0].second.surface, 1);
-    EXPECT_EQ(r4[0].second.side, Side::Positive);
-
-    Ray r5 = tplane.get_ray({2.0,0.,4.},{0.,0.,-1.}, Side::Negative);
-    EXPECT_EQ(r5.size(), 1);
-    EXPECT_DOUBLE_EQ(r5[0].first.distance, 1.);
-    EXPECT_EQ(r5[0].first.surface, 1);
-    EXPECT_EQ(r5[0].first.side, Side::Positive);
-    EXPECT_DOUBLE_EQ(r5[0].second.distance, INF);
-    EXPECT_EQ(r5[0].second.surface, 0);
-    EXPECT_EQ(r5[0].second.side, Side::Positive);
-  }
+  
 };

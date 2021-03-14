@@ -7,9 +7,8 @@ set(PAPILLON_SOURCE_FILES ${PAPILLON_SOURCE_FILES}
   #src/plotter_3d.cpp
   #src/geo_plotter.cpp
   # Geometry
-  src/geo_node.cpp
-  src/geometry.cpp
-  src/ray.cpp
+  #src/geo_node.cpp
+  #src/geometry.cpp
   # CSG
   src/intersection.cpp
   src/difference.cpp

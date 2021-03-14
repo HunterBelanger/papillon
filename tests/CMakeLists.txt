@@ -4,6 +4,7 @@ project(papillon-tests LANGUAGES CXX)
 add_executable(test tests_main.cpp
   vector_tests.cpp
   direction_tests.cpp
+  transformation_tests.cpp
   xplane_tests.cpp
   yplane_tests.cpp
   zplane_tests.cpp
@@ -12,7 +13,6 @@ add_executable(test tests_main.cpp
   ycylinder_tests.cpp
   zcylinder_tests.cpp
   sphere_tests.cpp
-  ray_tests.cpp
   half_space_tests.cpp
   intersection_tests.cpp
   union_tests.cpp

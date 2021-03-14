@@ -134,7 +134,7 @@ namespace pmc {
   Transformation Transformation::scale_z(double s) {
     Transformation out;
 
-    out.data_ = {0., 0., 0., 0.,
+    out.data_ = {1., 0., 0., 0.,
                  0., 1., 0., 0.,
                  0., 0., s , 0.};
 

@@ -1,12 +1,12 @@
 #include <Papillon/geometry/surfaces/sphere.hpp>
 #include <Papillon/geometry/csg/half_space.hpp>
-#include <Papillon/geometry/geo_navigator.hpp>
 #include <Papillon/utils/transformation.hpp>
 
 //#include <Papillon/plotter/geo_plotter.hpp>
 
 #include <iostream>
 #include <memory>
+#include <unordered_map>
 
 const std::string papillon_logo = "\n"
   "                         .==-.                   .-==.\n"
@@ -78,43 +78,8 @@ int main() {
   surfaces[1] = std::make_shared<Sphere>(0.,0.,0.,2.,Surface::BoundaryType::Transparent,1);
   surfaces[2] = std::make_shared<Sphere>(0.,0.,0.,5.,Surface::BoundaryType::Vacuum,2);
 
-  volumes[1] = std::make_shared<HalfSpace>(surfaces[1], Side::Negative, 1);
-  volumes[2] = std::make_shared<HalfSpace>(surfaces[2], Side::Negative, 1);
-
-  std::unique_ptr<GeoNode> root = std::make_unique<GeoNode>(volumes[2], Transformation(), "outer_sphere");
-  root->add_node(volumes[1], Transformation(), "inner_sphere");
-
-  Geometry geometry(surfaces, volumes, std::move(root));
-
-  GeoNavigator nav1(&geometry, Position(0.,0.,0.), Direction(1.,0.,0.));
-
-  GeoNode* current1 = nav1.current_node();
-  std::cout << current1->name() << std::endl;
-  Boundary b1 = nav1.find_next_boundary();
-  std::cout << " Next boundary in " << b1.distance << "cm with surface ";
-  std::cout << b1.surface->id() << "\n\n";
-
-  // Move by 2.1
-  nav1.move_distance(2.1);
-  nav1.find_location_from_current();
-  
-  current1 = nav1.current_node();
-  std::cout << current1->name() << std::endl;
-  b1 = nav1.find_next_boundary();
-  std::cout << " Next boundary in " << b1.distance << "cm with surface ";
-  std::cout << b1.surface->id() << "\n";
-
-  nav1.move_distance(b1.distance);
-  nav1.set_on_surface(2, Side::Negative);
-  nav1.find_location_from_current();
-  if(nav1.is_lost()) {
-    b1 = nav1.find_next_boundary();
-    std::cout << " Nav1 is lost. Distance to surface = " << b1.distance << "\n";
-  }
-
-  Vector v(1.,0.,0.);
-  Direction u = v;
-  std::cout << v << std::endl;
+  volumes[1] = std::make_shared<HalfSpace>(surfaces[1], Surface::Side::Negative, 1);
+  volumes[2] = std::make_shared<HalfSpace>(surfaces[2], Surface::Side::Negative, 1);
 
   //GeoPlotter plotter(&geometry);
   //return plotter.run();

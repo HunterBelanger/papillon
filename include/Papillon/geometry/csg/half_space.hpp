@@ -42,15 +42,15 @@ namespace pmc {
 
   class HalfSpace : public Volume {
     public:
-      HalfSpace(std::shared_ptr<Surface> surface, Side side, uint32_t id);
+      HalfSpace(std::shared_ptr<Surface> surface, Surface::Side side, uint32_t id);
       ~HalfSpace() = default;
 
-      bool is_inside(const Position& r, const Direction& u, uint32_t on_surf=0, Side on_side=Side::Positive) const override final;
-      Ray get_ray(const Position& r, const Direction& u) const override final;
+      bool is_inside(const Position& r, const Direction& u, uint32_t on_surf=0, Surface::Side on_side=Surface::Side::Positive) const override final;
+      Boundary get_boundary(const Position& r, const Direction& u, uint32_t on_surf=0) const override final;
 
     private:
       std::shared_ptr<Surface> surface_;
-      Side side_;
+      Surface::Side side_;
 
   }; // HalfSpace
 

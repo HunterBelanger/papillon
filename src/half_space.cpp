@@ -37,10 +37,10 @@
 
 namespace pmc {
 
-  HalfSpace::HalfSpace(std::shared_ptr<Surface> surface, Side side, uint32_t id): Volume(id), surface_(surface), side_(side) {}
+  HalfSpace::HalfSpace(std::shared_ptr<Surface> surface, Surface::Side side, uint32_t id): Volume(id), surface_(surface), side_(side) {}
 
   bool HalfSpace::is_inside(const Position& r, const Direction& u, 
-      uint32_t on_surf, Side on_side) const {
+      uint32_t on_surf, Surface::Side on_side) const {
     // Check if on_surf matches id
     if(on_surf == surface_->id()) {
       if(on_side == side_) return true;
@@ -48,13 +48,13 @@ namespace pmc {
     }
     
     // Get distance to surface
-    double d_to_surf = surface_->distance(r, u);
+    double d_to_surf = surface_->distance(r, u, on_surf);
 
     // Check if on boundary or not
     if(std::fabs(d_to_surf) <= SURFACE_COINCIDENT) {
       // Do check with dot product
       Direction norm = surface_->normal(r);
-      if((side_ == Side::Positive) && (u.dot(norm)>0)) return true;
+      if((side_ == Surface::Side::Positive) && (u.dot(norm)>0)) return true;
       else return false;
     } else {
       // Do check with sign
@@ -63,8 +63,12 @@ namespace pmc {
     }
   }
 
-  Ray HalfSpace::get_ray(const Position& r, const Direction& u) const {
-    return surface_->get_ray(r, u, side_);
+  Boundary HalfSpace::get_boundary(const Position& r, const Direction& u, uint32_t on_surf) const {
+    Boundary bound;
+    bound.surface_id = surface_->id();
+    bound.current_side = surface_->sign(r, u);
+    bound.distance = surface_->distance(r, u, on_surf);
+    bound.boundary_type = surface_->boundary();
+    return bound;
   }
-
 }

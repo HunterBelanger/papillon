@@ -34,15 +34,14 @@
 #ifndef PAPILLON_SURFACE_H
 #define PAPILLON_SURFACE_H
 
-#include <Papillon/geometry/ray.hpp>
 #include <Papillon/utils/direction.hpp>
-#include <memory>
 
 namespace pmc {
 
 class Surface {
  public:
   enum class BoundaryType { Transparent, Vacuum, Reflective };
+  enum class Side: bool { Positive=true, Negative=false };
   
   Surface(BoundaryType boundary, uint32_t id) : id_(id), boundary_(boundary) {
     if (id_ == 0) {
@@ -53,12 +52,8 @@ class Surface {
   virtual ~Surface() = default;
 
   virtual Side sign(const Position& r, const Direction& u) const = 0;
-  virtual double distance(const Position& r, const Direction& u, uint32_t on_surf) const = 0;
+  virtual double distance(const Position& r, const Direction& u, uint32_t on_surf=0) const = 0;
   virtual Direction normal(const Position& r) const = 0;
-  virtual Ray get_ray(const Position& r, const Direction& u, Side side) const = 0;
-  virtual void translate(const Vector& v) = 0;
-
-  virtual std::shared_ptr<Surface> clone() const = 0;
 
   BoundaryType boundary() const { return boundary_; }
   uint32_t id() const { return id_; }

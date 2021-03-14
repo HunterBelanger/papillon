@@ -37,20 +37,16 @@ namespace pmc {
 
   Difference::Difference(std::shared_ptr<Volume> r1, std::shared_ptr<Volume> r2, uint32_t id): Volume(id), r1_(r1), r2_(r2) {}
 
-  bool Difference::is_inside(const Position& r, const Direction& u, uint32_t on_surf, Side on_side) const {
+  bool Difference::is_inside(const Position& r, const Direction& u, uint32_t on_surf, Surface::Side on_side) const {
     if(!r1_->is_inside(r,u,on_surf,on_side)) return false;
     if(r2_->is_inside(r,u,on_surf,on_side)) return false;
     return true;
   }
 
-  Ray Difference::get_ray(const Position& r, const Direction& u) const {
-    Ray ray_1 = r1_->get_ray(r, u);
-    if(ray_1.size() == 0) return Ray({});
+  Boundary Difference::get_boundary(const Position& r, const Direction& u, uint32_t on_surf) const {
+    Boundary b1 = r1_->get_boundary(r, u, on_surf);
+    Boundary b2 = r2_->get_boundary(r, u, on_surf);
 
-    Ray ray_2 = r2_->get_ray(r, u);
-    if(ray_2.size() == 0) return ray_1;
-
-    return ray_1.get_difference(ray_2);
+    return (b1.distance <= b2.distance) ? b1 : b2;
   }
-
 }
